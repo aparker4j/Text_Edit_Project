@@ -1,0 +1,179 @@
+/*
+ * Program Name: Exam3B.c
+ * 
+ * Description: Takes input file name from user and opens it for reading.
+ *				It then reads the file inot a string buffer and passes to
+ * 				the formatting function. There the string is modified to 
+ * 				remove extra spaces and to put text into sentence case.
+ * 				The program then prompts the user for an output file that
+ * 				the text string will be written to. The string is then 
+ * 				written to the file and both files are clesed.
+ * 
+ * Author:	Andrew Parker N01453532
+ * 
+ * Date last modified: 281410Z JUL20
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define FLUSH while(getchar() !='\n');
+ 
+char* Format_Text_Function(char * textBuffer);
+char Print_To_File(char *textFile, char filename[80]);
+
+int main(int argc, char **argv)
+{
+	
+
+    FILE *fileIn;
+    FILE *fileOut; 
+    char textBuffer[1024]; //text buffer size dictated by the rubric//
+    char filename[80];	  // text size dictated by the rubric
+	char* textFile;
+    char c;
+    
+    printf("Enter the filename to open for reading: \n"); 
+    scanf("%s", filename); 
+	FLUSH;
+  
+    fileIn = fopen(filename, "r"); 
+    if (fileIn == NULL) 
+    { 
+        printf("File not found %s \n", filename); 
+        exit(1); 
+    } 
+   while (fgets(textBuffer, 1024, fileIn) != NULL)
+   printf("The unformatted text looks like this:\n%s", textBuffer);
+   printf("\n");
+	textFile = Format_Text_Function(textBuffer);
+    printf("\nText after formating: \n%s", textFile);
+    printf("\n\n");
+    
+    Print_To_File(textFile, filename);
+    
+	fclose(fileIn);
+	
+	fileOut = fopen(filename, "r");
+	
+	printf("Text written to file %s reads: \n", filename);
+	
+	c = fgetc(fileOut); 
+    while (c != EOF) 
+    { 
+        printf ("%c", c); 
+        c = fgetc(fileOut); 
+    } 
+  
+    fclose(fileOut); 
+    
+    printf("\n");
+    	
+	return 0;
+}
+
+
+/*
+ * 
+ * name: Format_Text_Function
+ * description: Takes string in textBuffer and removes extra spaces and
+ * formats wording into sentence case.
+ * @param: char pointer textBuffer
+ * @return: textFile string that has been formatted
+ * 
+ */
+
+
+char* Format_Text_Function(char * textBuffer)
+{
+    int i, j;
+    char* textFile;
+
+    textFile = (char*)malloc(1024);
+
+    i = 0; //buffer incrementor
+    j = 0; //file incrementor
+
+//Loops that formats string by removing extra spaces
+    while(textBuffer[i] != '\0')    
+    {
+      if(textBuffer[i] == ' ')
+       {
+         textFile[j] = ' ';
+         j++;
+
+            
+         while(textBuffer[i] == ' ')
+           i++;
+       }
+
+        textFile[j] = textBuffer[i];
+
+        i++;
+        j++;
+       }
+    
+    textFile[j] = '\0';
+
+
+	//Loops that format string for sentence case
+	//i is used as file incrementor
+	for(i=0;i<1024;i++)	
+		{if( (i==0) && (textFile[i]!= EOF))
+		{
+			textFile[i] = textFile[i];
+		}
+		else if((textFile[i]=='.')||(textFile[i]=='!')||(textFile[i]=='?'))
+		{
+			if(textFile[i+1] == ' ')
+			{
+			  if(textFile[i+2]>='a' && textFile[i+2]<='z')
+			  {
+				textFile[i+2] = toupper(textFile[i+2]);
+			  }
+			}
+			else
+			{         
+			  if(textFile[i+1]>='a' && textFile[i+1]<='z')
+			  {
+				textFile[i+1] = toupper(textFile[i+1]);
+              }
+            }
+}
+}
+	return textFile;
+}
+
+/*
+ * 
+ * name: Print_To_File
+ * description: Prompts user for output file that the formatted text 
+ * string is to be written. Passes file name to the main function
+ * @param: pointer to textFile
+ * @return: fileName
+ * 
+ */
+
+
+char Print_To_File(char *textFile, char filename[80])
+{
+	
+	FILE *fileOut;
+
+	
+	printf("Enter the filename to open for writing \n"); 
+    scanf("%s", filename); 
+    FLUSH;
+	printf("\n");
+ 
+    fileOut = fopen(filename, "w+"); 
+    
+    
+	fputs(textFile, fileOut);
+ 
+	fclose(fileOut);
+	
+ return *filename; 
+}
